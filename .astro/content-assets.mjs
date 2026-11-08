@@ -1,9 +1,0 @@
-
-import __ASTRO_IMAGE_IMPORT_ZXOIw7 from "../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Frecipes%2Fpan-seared-salmon-beurre-blanc.mdx";
-import __ASTRO_IMAGE_IMPORT_17KNCR from "../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Frecipes%2Fcrispy-smashed-potatoes.mdx";
-import __ASTRO_IMAGE_IMPORT_1UnaYn from "../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Ffeatures%2Fthe-perfect-burger.mdx";
-import __ASTRO_IMAGE_IMPORT_S6SmB from "../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Fessays%2Fwhy-mise-en-place-matters.mdx";
-import __ASTRO_IMAGE_IMPORT_Z1pYJmw from "../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Freviews%2Fthe-publican-chicago.mdx";
-import __ASTRO_IMAGE_IMPORT_tMxVD from "../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Freviews%2Funderbelly-hospitality-houston.mdx";
-export default new Map([["../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Frecipes%2Fpan-seared-salmon-beurre-blanc.mdx", __ASTRO_IMAGE_IMPORT_ZXOIw7], ["../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Frecipes%2Fcrispy-smashed-potatoes.mdx", __ASTRO_IMAGE_IMPORT_17KNCR], ["../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Ffeatures%2Fthe-perfect-burger.mdx", __ASTRO_IMAGE_IMPORT_1UnaYn], ["../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Fessays%2Fwhy-mise-en-place-matters.mdx", __ASTRO_IMAGE_IMPORT_S6SmB], ["../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Freviews%2Fthe-publican-chicago.mdx", __ASTRO_IMAGE_IMPORT_Z1pYJmw], ["../../assets/images/placeholder.svg?astroContentImageFlag=&importer=src%2Fcontent%2Freviews%2Funderbelly-hospitality-houston.mdx", __ASTRO_IMAGE_IMPORT_tMxVD]]);
-		

@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://burrowbutter.com/sitemap-index.xml
