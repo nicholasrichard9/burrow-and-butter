@@ -1,0 +1,215 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RecipeCard from '@/components/RecipeCard.astro';
+import ReviewCard from '@/components/ReviewCard.astro';
+import FeatureCard from '@/components/FeatureCard.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import AdSlot from '@/components/AdSlot.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig, authors } from '@/data/site.config';
+
+// Get latest content
+const allRecipes = await getCollection('recipes', ({ data }) => !data.draft);
+const allReviews = await getCollection('reviews', ({ data }) => !data.draft);
+const allFeatures = await getCollection('features', ({ data }) => !data.draft);
+
+// Sort by date
+const latestRecipes = allRecipes
+  .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime())
+  .slice(0, 6);
+
+const latestReviews = allReviews
+  .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime())
+  .slice(0, 4);
+
+const latestFeature = allFeatures
+  .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime())[0];
+
+const featuredRecipe = allRecipes.find(r => r.data.featured) || latestRecipes[0];
+---
+
+<BaseLayout
+  title={siteConfig.name}
+  description={siteConfig.description}
+>
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-b from-cream-100 to-cream-50 py-16 md:py-24">
+    <div class="container-wide">
+      <div class="max-w-4xl mx-auto text-center">
+        <!-- Tagline -->
+        <p class="text-copper-600 font-sans font-medium text-sm uppercase tracking-wide mb-4">
+          Where a Chef & Home Cook Meet
+        </p>
+
+        <!-- Main headline -->
+        <h1 class="text-bark-900 mb-6">
+          Recipes tested twice,<br class="hidden sm:block" /> from two different kitchens
+        </h1>
+
+        <!-- Story -->
+        <p class="text-lg md:text-xl text-bark-600 mb-8 max-w-2xl mx-auto">
+          Nick cooks in a Chicago apartment kitchen. Xavier runs a professional kitchen in Houston.
+          Together, we test every recipe from both perspectives—so you get dishes that work
+          whether you have five minutes or all afternoon.
+        </p>
+
+        <!-- Newsletter CTA (above the fold!) -->
+        <div class="max-w-md mx-auto mb-8">
+          <NewsletterForm showLeadMagnet={true} source="hero" />
+        </div>
+
+        <!-- Author preview -->
+        <div class="flex justify-center gap-8 md:gap-12">
+          <a href="/authors/nick" class="text-center group">
+            <img
+              src={authors.nick.avatar}
+              alt={authors.nick.name}
+              class="w-16 h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 border-4 border-white shadow-cozy group-hover:border-moss-200 transition-colors"
+              loading="eager"
+            />
+            <span class="font-sans font-medium text-bark-800 group-hover:text-copper-600 transition-colors">Nick</span>
+            <span class="block text-sm text-bark-500">Home Cook</span>
+          </a>
+          <a href="/authors/xavier" class="text-center group">
+            <img
+              src={authors.xavier.avatar}
+              alt={authors.xavier.name}
+              class="w-16 h-16 md:w-20 md:h-20 rounded-full mx-auto mb-2 border-4 border-white shadow-cozy group-hover:border-moss-200 transition-colors"
+              loading="eager"
+            />
+            <span class="font-sans font-medium text-bark-800 group-hover:text-copper-600 transition-colors">Xavier</span>
+            <span class="block text-sm text-bark-500">Chef</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Recipe -->
+  {featuredRecipe && (
+    <section class="py-12 md:py-16">
+      <div class="container-wide">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-bark-900">Latest Recipe</h2>
+          <a href="/recipes" class="text-moss-600 hover:text-moss-700 font-sans font-medium text-sm">
+            View all recipes &rarr;
+          </a>
+        </div>
+        <RecipeCard recipe={featuredRecipe} featured={true} />
+      </div>
+    </section>
+  )}
+
+  <!-- Ad Slot -->
+  <div class="container-wide py-4">
+    <AdSlot size="banner" id="home-top" />
+  </div>
+
+  <!-- Latest Recipes Grid -->
+  <section class="py-12 md:py-16 bg-cream-100">
+    <div class="container-wide">
+      <h2 class="text-bark-900 mb-8">Fresh from Our Kitchens</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {latestRecipes.slice(1, 7).map((recipe) => (
+          <RecipeCard recipe={recipe} />
+        ))}
+      </div>
+      <div class="text-center mt-8">
+        <a href="/recipes" class="btn-outline">
+          Browse All Recipes
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chef vs. Home Cook Feature -->
+  {latestFeature && (
+    <section class="py-12 md:py-16">
+      <div class="container-wide">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-bark-900 mb-2">Chef vs. Home Cook</h2>
+            <p class="text-bark-600">Two approaches to the same dish—which one fits your kitchen?</p>
+          </div>
+          <a href="/features" class="text-moss-600 hover:text-moss-700 font-sans font-medium text-sm hidden md:block">
+            See all features &rarr;
+          </a>
+        </div>
+        <FeatureCard feature={latestFeature} />
+      </div>
+    </section>
+  )}
+
+  <!-- Newsletter Section (mid-page) -->
+  <section class="py-16 bg-moss-700">
+    <div class="container-narrow text-center">
+      <h2 class="text-white mb-4">
+        Get recipes that actually work
+      </h2>
+      <p class="text-moss-100 mb-8 max-w-lg mx-auto">
+        Every recipe is tested in both a home kitchen and a professional one.
+        Join our newsletter for weekly recipes, restaurant discoveries, and kitchen wisdom.
+      </p>
+      <NewsletterForm theme="dark" showLeadMagnet={true} source="home-mid" />
+    </div>
+  </section>
+
+  <!-- Restaurant Reviews -->
+  {latestReviews.length > 0 && (
+    <section class="py-12 md:py-16">
+      <div class="container-wide">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-bark-900 mb-2">Where We're Eating</h2>
+            <p class="text-bark-600">Local restaurant reviews from Chicago & Houston</p>
+          </div>
+          <a href="/reviews" class="text-moss-600 hover:text-moss-700 font-sans font-medium text-sm hidden md:block">
+            All reviews &rarr;
+          </a>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {latestReviews.map((review) => (
+            <ReviewCard review={review} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Categories -->
+  <section class="py-12 md:py-16 bg-cream-100">
+    <div class="container-wide">
+      <h2 class="text-bark-900 mb-8 text-center">Browse by Category</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {siteConfig.categories.map((category) => (
+          <a
+            href={`/recipes?category=${category.slug}`}
+            class="bg-white rounded-xl p-6 text-center shadow-cozy hover:shadow-cozy-lg transition-shadow group"
+          >
+            <span class="font-display text-display-sm text-bark-900 group-hover:text-copper-600 transition-colors">
+              {category.name}
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- About Preview -->
+  <section class="py-16 md:py-20">
+    <div class="container-wide">
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-bark-900 mb-6">Our Story</h2>
+        <p class="text-lg text-bark-600 mb-6">
+          What happens when a self-taught home cook and a culinary school-trained chef
+          become friends? You get recipes tested from every angle, honest reviews of
+          our favorite local spots, and plenty of friendly debates about whether
+          mise en place really matters (spoiler: it depends who's cooking).
+        </p>
+        <a href="/about" class="btn-primary">
+          Read Our Story
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

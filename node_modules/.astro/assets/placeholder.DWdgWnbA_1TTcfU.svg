@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect fill="#F5D99A" width="800" height="600"/>
+  <text fill="#5A8A5A" font-family="Georgia, serif" font-size="32" text-anchor="middle" x="400" y="300">Placeholder Image</text>
+  <text fill="#A99279" font-family="Georgia, serif" font-size="18" text-anchor="middle" x="400" y="340">Replace with your photo</text>
+</svg>

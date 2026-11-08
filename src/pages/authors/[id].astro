@@ -1,0 +1,164 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RecipeCard from '@/components/RecipeCard.astro';
+import ReviewCard from '@/components/ReviewCard.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import { getCollection } from 'astro:content';
+import { authors, siteConfig, type AuthorId } from '@/data/site.config';
+
+export function getStaticPaths() {
+  return Object.keys(authors).map((id) => ({
+    params: { id },
+    props: { authorId: id as AuthorId },
+  }));
+}
+
+interface Props {
+  authorId: AuthorId;
+}
+
+const { authorId } = Astro.props;
+const author = authors[authorId];
+
+// Get author's content
+const allRecipes = await getCollection('recipes', ({ data }) => !data.draft && data.author === authorId);
+const allReviews = await getCollection('reviews', ({ data }) => !data.draft && data.reviewer === authorId);
+
+const recipes = allRecipes.sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+const reviews = allReviews.sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+
+// Person schema
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": author.name,
+  "jobTitle": author.role,
+  "description": author.bio,
+  "image": `${siteConfig.url}${author.avatar}`,
+  "url": `${siteConfig.url}/authors/${authorId}`,
+  "sameAs": Object.values(author.social || {}).filter(Boolean),
+  "worksFor": {
+    "@type": "Organization",
+    "name": siteConfig.name,
+    "url": siteConfig.url
+  }
+};
+---
+
+<BaseLayout
+  title={`${author.name} - ${author.role}`}
+  description={author.bio}
+  image={author.avatar}
+  imageAlt={`Photo of ${author.name}`}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+  </Fragment>
+
+  <article class="py-12" data-pagefind-body>
+    <!-- Hero -->
+    <section class="bg-gradient-to-b from-cream-100 to-cream-50 py-12 md:py-16">
+      <div class="container-narrow">
+        <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+          <img
+            src={author.avatar}
+            alt={author.name}
+            class="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover border-4 border-white shadow-cozy"
+          />
+          <div class="text-center md:text-left">
+            <h1 class="text-bark-900 mb-2">{author.name}</h1>
+            <p class="text-xl text-copper-600 font-display mb-2">{author.role}</p>
+            <p class="text-bark-500 mb-4">{author.location}</p>
+            <p class="text-bark-700 max-w-xl">{author.bio}</p>
+
+            <!-- Credentials -->
+            <div class="mt-6">
+              <h2 class="font-sans font-semibold text-bark-700 mb-2">Background</h2>
+              <ul class="space-y-1">
+                {author.credentials.map((cred) => (
+                  <li class="flex items-center gap-2 text-bark-600 text-sm">
+                    <span class="text-moss-500">✓</span>
+                    {cred}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <!-- Social -->
+            {author.social && (
+              <div class="flex gap-4 mt-6 justify-center md:justify-start">
+                {author.social.instagram && (
+                  <a href={author.social.instagram} target="_blank" rel="noopener noreferrer" class="text-bark-500 hover:text-copper-600">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                  </a>
+                )}
+                {author.social.twitter && (
+                  <a href={author.social.twitter} target="_blank" rel="noopener noreferrer" class="text-bark-500 hover:text-copper-600">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recipes -->
+    {recipes.length > 0 && (
+      <section class="py-12">
+        <div class="container-wide">
+          <h2 class="text-bark-900 mb-8">{author.name}'s Recipes</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.slice(0, 6).map((recipe) => (
+              <RecipeCard recipe={recipe} />
+            ))}
+          </div>
+          {recipes.length > 6 && (
+            <div class="text-center mt-8">
+              <a href={`/recipes?author=${authorId}`} class="btn-outline">
+                View all {recipes.length} recipes
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    <!-- Reviews -->
+    {reviews.length > 0 && (
+      <section class="py-12 bg-cream-100">
+        <div class="container-wide">
+          <h2 class="text-bark-900 mb-8">{author.name}'s Restaurant Reviews</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {reviews.slice(0, 4).map((review) => (
+              <ReviewCard review={review} />
+            ))}
+          </div>
+          {reviews.length > 4 && (
+            <div class="text-center mt-8">
+              <a href={`/reviews?author=${authorId}`} class="btn-outline">
+                View all {reviews.length} reviews
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    <!-- Newsletter -->
+    <section class="py-12">
+      <div class="container-narrow text-center">
+        <h2 class="text-bark-900 mb-4">Follow {author.name}'s Kitchen Adventures</h2>
+        <p class="text-bark-600 mb-6">
+          Get {author.name}'s latest recipes and reviews delivered to your inbox.
+        </p>
+        <NewsletterForm source={`author-${authorId}`} />
+      </div>
+    </section>
+  </article>
+</BaseLayout>

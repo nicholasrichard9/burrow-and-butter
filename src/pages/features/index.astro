@@ -1,0 +1,83 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import FeatureCard from '@/components/FeatureCard.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import { getCollection } from 'astro:content';
+
+const allFeatures = await getCollection('features', ({ data }) => !data.draft);
+
+const features = allFeatures.sort(
+  (a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime()
+);
+---
+
+<BaseLayout
+  title="Chef vs. Home Cook"
+  description="What happens when a professional chef and a home cook tackle the same dish? See both approaches side by side and decide which one fits your kitchen."
+>
+  <!-- Hero -->
+  <section class="bg-gradient-to-b from-cream-100 to-cream-50 py-12 md:py-16">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <span class="badge-copper mb-4">Feature Series</span>
+        <h1 class="text-bark-900 mb-4">Chef vs. Home Cook</h1>
+        <p class="text-lg text-bark-600">
+          Xavier brings restaurant techniques. Nick brings weeknight reality.
+          Same dish, two approaches—see which one works for you.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="py-12">
+    <div class="container-wide">
+      {features.length > 0 ? (
+        <div class="grid md:grid-cols-2 gap-8">
+          {features.map((feature) => (
+            <FeatureCard feature={feature} />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-bark-600 text-lg">Features coming soon!</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- About the series -->
+  <section class="py-12 bg-cream-100">
+    <div class="container-narrow text-center">
+      <h2 class="text-bark-900 mb-6">How It Works</h2>
+      <div class="grid md:grid-cols-3 gap-8 text-left mb-8">
+        <div>
+          <div class="w-12 h-12 bg-moss-500 rounded-full flex items-center justify-center text-white font-display text-xl mb-4">1</div>
+          <h3 class="font-display text-display-sm text-bark-900 mb-2">Pick a Dish</h3>
+          <p class="text-bark-600">We choose a classic dish that home cooks and chefs approach differently.</p>
+        </div>
+        <div>
+          <div class="w-12 h-12 bg-copper-500 rounded-full flex items-center justify-center text-white font-display text-xl mb-4">2</div>
+          <h3 class="font-display text-display-sm text-bark-900 mb-2">Cook It Two Ways</h3>
+          <p class="text-bark-600">Xavier uses professional techniques. Nick uses what's in a normal kitchen.</p>
+        </div>
+        <div>
+          <div class="w-12 h-12 bg-bark-600 rounded-full flex items-center justify-center text-white font-display text-xl mb-4">3</div>
+          <h3 class="font-display text-display-sm text-bark-900 mb-2">You Decide</h3>
+          <p class="text-bark-600">We break down when each approach makes sense—and give you both recipes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter CTA -->
+  <section class="py-12">
+    <div class="container-narrow text-center">
+      <h2 class="text-bark-900 mb-4">Don't miss the next showdown</h2>
+      <p class="text-bark-600 mb-6">
+        Get notified when we publish new Chef vs. Home Cook features.
+      </p>
+      <NewsletterForm source="features" />
+    </div>
+  </section>
+</BaseLayout>

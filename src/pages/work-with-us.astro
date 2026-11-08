@@ -1,0 +1,128 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { siteConfig } from '@/data/site.config';
+---
+
+<BaseLayout
+  title="Work With Us"
+  description="Partner with Burrow and Butter for sponsored content, brand partnerships, and media inquiries."
+>
+  <article class="py-12">
+    <!-- Hero -->
+    <section class="bg-gradient-to-b from-cream-100 to-cream-50 py-12 md:py-16">
+      <div class="container-narrow text-center">
+        <h1 class="text-bark-900 mb-4">Work With Us</h1>
+        <p class="text-xl text-bark-600">
+          Partner with two perspectives on food—a professional chef and a home cook.
+        </p>
+      </div>
+    </section>
+
+    <!-- Partnership types -->
+    <section class="py-12">
+      <div class="container-narrow">
+        <div class="space-y-12">
+          <!-- Sponsored Content -->
+          <div class="bg-white rounded-xl p-8 shadow-cozy">
+            <h2 class="font-display text-display-md text-bark-900 mb-4">Sponsored Recipes</h2>
+            <p class="text-bark-600 mb-4">
+              We create original recipes featuring your product, tested in both a professional
+              kitchen and a home kitchen. Each recipe includes our honest testing notes,
+              professional photography, and promotion across our channels.
+            </p>
+            <ul class="space-y-2 mb-4">
+              <li class="flex items-center gap-2 text-bark-600">
+                <span class="text-moss-500">✓</span>
+                Full recipe development and testing
+              </li>
+              <li class="flex items-center gap-2 text-bark-600">
+                <span class="text-moss-500">✓</span>
+                Professional food photography
+              </li>
+              <li class="flex items-center gap-2 text-bark-600">
+                <span class="text-moss-500">✓</span>
+                Newsletter feature to our engaged subscribers
+              </li>
+              <li class="flex items-center gap-2 text-bark-600">
+                <span class="text-moss-500">✓</span>
+                Social media promotion
+              </li>
+            </ul>
+          </div>
+
+          <!-- Restaurant Features -->
+          <div class="bg-white rounded-xl p-8 shadow-cozy">
+            <h2 class="font-display text-display-md text-bark-900 mb-4">Restaurant Features</h2>
+            <p class="text-bark-600 mb-4">
+              We visit your restaurant and create an honest, in-depth review. We're based in
+              Chicago and Houston, but open to travel for the right opportunity.
+            </p>
+            <p class="text-bark-500 text-sm italic">
+              Note: We always disclose sponsored visits. We maintain editorial independence
+              on all reviews—we'll never guarantee a positive review.
+            </p>
+          </div>
+
+          <!-- Brand Partnerships -->
+          <div class="bg-white rounded-xl p-8 shadow-cozy">
+            <h2 class="font-display text-display-md text-bark-900 mb-4">Brand Partnerships</h2>
+            <p class="text-bark-600 mb-4">
+              Long-term partnerships for brands aligned with our values. We're selective about
+              who we work with—we only partner with products we'd actually use in our own kitchens.
+            </p>
+          </div>
+
+          <!-- Media -->
+          <div class="bg-white rounded-xl p-8 shadow-cozy">
+            <h2 class="font-display text-display-md text-bark-900 mb-4">Media & Press</h2>
+            <p class="text-bark-600 mb-4">
+              For interviews, quotes, or features, reach out with your deadline and we'll
+              do our best to accommodate.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audience Stats -->
+    <section class="py-12 bg-cream-100">
+      <div class="container-narrow">
+        <h2 class="font-display text-display-lg text-bark-900 text-center mb-8">Our Audience</h2>
+        <div class="grid md:grid-cols-3 gap-8 text-center">
+          <div>
+            <span class="font-display text-display-xl text-moss-600">10K+</span>
+            <p class="text-bark-600">Newsletter subscribers</p>
+          </div>
+          <div>
+            <span class="font-display text-display-xl text-copper-600">45%</span>
+            <p class="text-bark-600">Open rate</p>
+          </div>
+          <div>
+            <span class="font-display text-display-xl text-bark-700">50K+</span>
+            <p class="text-bark-600">Monthly page views</p>
+          </div>
+        </div>
+        <p class="text-center text-bark-500 text-sm mt-8">
+          Our audience is primarily 25-45 year old home cooks who value quality over
+          convenience and are willing to invest in good ingredients and equipment.
+        </p>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="py-12">
+      <div class="container-narrow text-center">
+        <h2 class="font-display text-display-lg text-bark-900 mb-4">Let's Talk</h2>
+        <p class="text-bark-600 mb-6">
+          Interested in working together? Send us an email with your idea.
+        </p>
+        <a href={`mailto:${siteConfig.social.email}?subject=Partnership Inquiry`} class="btn-primary">
+          Email Us
+        </a>
+        <p class="text-bark-500 text-sm mt-4">
+          {siteConfig.social.email}
+        </p>
+      </div>
+    </section>
+  </article>
+</BaseLayout>

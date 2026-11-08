@@ -1,0 +1,211 @@
+{
+  "$ref": "#/definitions/features",
+  "definitions": {
+    "features": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "dish": {
+          "type": "string"
+        },
+        "heroImage": {
+          "type": "string"
+        },
+        "heroImageAlt": {
+          "type": "string"
+        },
+        "chefVersion": {
+          "type": "object",
+          "properties": {
+            "approach": {
+              "type": "string"
+            },
+            "keyTechniques": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "timeRequired": {
+              "type": "string"
+            },
+            "equipmentNeeded": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "difficultyLevel": {
+              "type": "string",
+              "enum": [
+                "easy",
+                "medium",
+                "challenging"
+              ]
+            },
+            "image": {
+              "type": "string"
+            },
+            "imageAlt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "approach",
+            "keyTechniques",
+            "timeRequired",
+            "equipmentNeeded",
+            "difficultyLevel",
+            "image",
+            "imageAlt"
+          ],
+          "additionalProperties": false
+        },
+        "homeVersion": {
+          "type": "object",
+          "properties": {
+            "approach": {
+              "type": "string"
+            },
+            "shortcuts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "timeRequired": {
+              "type": "string"
+            },
+            "equipmentNeeded": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "difficultyLevel": {
+              "type": "string",
+              "enum": [
+                "easy",
+                "medium",
+                "challenging"
+              ]
+            },
+            "image": {
+              "type": "string"
+            },
+            "imageAlt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "approach",
+            "shortcuts",
+            "timeRequired",
+            "equipmentNeeded",
+            "difficultyLevel",
+            "image",
+            "imageAlt"
+          ],
+          "additionalProperties": false
+        },
+        "verdict": {
+          "type": "string"
+        },
+        "whenToUseChefVersion": {
+          "type": "string"
+        },
+        "whenToUseHomeVersion": {
+          "type": "string"
+        },
+        "chefRecipeSlug": {
+          "type": "string"
+        },
+        "homeRecipeSlug": {
+          "type": "string"
+        },
+        "videoUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "videoType": {
+          "type": "string",
+          "enum": [
+            "youtube",
+            "tiktok",
+            "instagram"
+          ]
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "publishedDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "updatedDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "draft": {
+          "type": "boolean",
+          "default": false
+        },
+        "featured": {
+          "type": "boolean",
+          "default": false
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "dish",
+        "heroImage",
+        "heroImageAlt",
+        "chefVersion",
+        "homeVersion",
+        "verdict",
+        "whenToUseChefVersion",
+        "whenToUseHomeVersion",
+        "keywords",
+        "publishedDate"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,94 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import { getCollection } from 'astro:content';
+import { authors } from '@/data/site.config';
+
+const allEssays = await getCollection('essays', ({ data }) => !data.draft);
+
+const essays = allEssays.sort(
+  (a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime()
+);
+---
+
+<BaseLayout
+  title="Essays"
+  description="Thoughts on food, cooking, and life from the Burrow and Butter team."
+>
+  <!-- Hero -->
+  <section class="bg-gradient-to-b from-cream-100 to-cream-50 py-12 md:py-16">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h1 class="text-bark-900 mb-4">Essays</h1>
+        <p class="text-lg text-bark-600">
+          Thoughts on food, cooking, and everything in between.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Essays List -->
+  <section class="py-12">
+    <div class="container-wide">
+      {essays.length > 0 ? (
+        <div class="space-y-8 max-w-3xl">
+          {essays.map((essay) => {
+            const author = authors[essay.data.author];
+            return (
+              <article class="group">
+                <a href={`/essays/${essay.slug}`} class="md:flex gap-6">
+                  <div class="md:w-1/3 mb-4 md:mb-0">
+                    <Image
+                      src={essay.data.heroImage}
+                      alt={essay.data.heroImageAlt}
+                      width={300}
+                      height={200}
+                      class="w-full aspect-[3/2] object-cover rounded-lg"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="md:w-2/3">
+                    {essay.data.category && (
+                      <span class="badge-moss mb-2">{essay.data.category}</span>
+                    )}
+                    <h2 class="font-display text-display-md text-bark-900 group-hover:text-copper-600 transition-colors mb-2">
+                      {essay.data.title}
+                    </h2>
+                    <p class="text-bark-600 mb-3">{essay.data.description}</p>
+                    <div class="flex items-center gap-4 text-sm text-bark-500">
+                      <span>{author.name}</span>
+                      <span>•</span>
+                      <time datetime={essay.data.publishedDate.toISOString()}>
+                        {essay.data.publishedDate.toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </time>
+                    </div>
+                  </div>
+                </a>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-bark-600 text-lg mb-4">No essays yet. Check back soon!</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="py-12 bg-cream-100">
+    <div class="container-narrow text-center">
+      <h2 class="text-bark-900 mb-4">Get our stories in your inbox</h2>
+      <p class="text-bark-600 mb-6">
+        Essays, recipes, and more delivered weekly.
+      </p>
+      <NewsletterForm source="essays" />
+    </div>
+  </section>
+</BaseLayout>

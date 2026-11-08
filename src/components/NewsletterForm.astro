@@ -1,0 +1,80 @@
+---
+import { siteConfig } from '@/data/site.config';
+
+interface Props {
+  theme?: 'light' | 'dark';
+  showLeadMagnet?: boolean;
+  source?: string; // UTM source for tracking
+}
+
+const {
+  theme = 'light',
+  showLeadMagnet = false,
+  source = 'website'
+} = Astro.props;
+
+const { newsletter } = siteConfig;
+---
+
+<div class:list={[
+  'newsletter-signup',
+  theme === 'dark' ? 'newsletter-dark' : 'newsletter-light'
+]}>
+  {showLeadMagnet && newsletter.leadMagnet.enabled && (
+    <div class:list={[
+      'mb-4 p-4 rounded-lg',
+      theme === 'dark' ? 'bg-moss-600/30' : 'bg-moss-50'
+    ]}>
+      <p class:list={[
+        'text-sm font-sans font-medium mb-1',
+        theme === 'dark' ? 'text-white' : 'text-moss-800'
+      ]}>
+        Free download:
+      </p>
+      <p class:list={[
+        'text-sm',
+        theme === 'dark' ? 'text-moss-100' : 'text-moss-700'
+      ]}>
+        {newsletter.leadMagnet.title}
+      </p>
+    </div>
+  )}
+
+  <form
+    action={newsletter.formUrl}
+    method="post"
+    class="newsletter-form"
+    data-source={source}
+  >
+    <input
+      type="email"
+      name="email_address"
+      placeholder="Your email address"
+      required
+      aria-label="Email address"
+      class:list={[
+        'newsletter-input',
+        theme === 'dark' && 'border-moss-500 bg-moss-800/50 text-white placeholder:text-moss-300'
+      ]}
+    />
+    <input type="hidden" name="source" value={source} />
+    <button
+      type="submit"
+      class:list={[
+        'btn whitespace-nowrap',
+        theme === 'dark'
+          ? 'bg-white text-moss-700 hover:bg-cream-100'
+          : 'btn-primary'
+      ]}
+    >
+      Subscribe
+    </button>
+  </form>
+
+  <p class:list={[
+    'text-xs mt-3',
+    theme === 'dark' ? 'text-moss-200' : 'text-bark-500'
+  ]}>
+    No spam, ever. Unsubscribe anytime.
+  </p>
+</div>

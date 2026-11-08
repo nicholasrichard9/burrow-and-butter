@@ -1,0 +1,152 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ReviewCard from '@/components/ReviewCard.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig } from '@/data/site.config';
+
+const allReviews = await getCollection('reviews', ({ data }) => !data.draft);
+
+const reviews = allReviews.sort(
+  (a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime()
+);
+
+// Count reviews by city
+const cityCounts = reviews.reduce((acc, r) => {
+  const city = r.data.city;
+  acc[city] = (acc[city] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>);
+---
+
+<BaseLayout
+  title="Restaurant Reviews"
+  description="Honest restaurant reviews from Chicago and Houston. Our chef and home cook give their unfiltered takes on the best local spots."
+>
+  <!-- Hero -->
+  <section class="bg-gradient-to-b from-cream-100 to-cream-50 py-12 md:py-16">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h1 class="text-bark-900 mb-4">Restaurant Reviews</h1>
+        <p class="text-lg text-bark-600">
+          Honest takes on local restaurants from Chicago and Houston.
+          We pay for most of our meals—and we'll tell you when we don't.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- City Filters -->
+  <section class="bg-white border-b border-cream-200 sticky top-16 md:top-20 z-30">
+    <div class="container-wide py-4">
+      <div class="flex flex-wrap gap-3" id="review-filters">
+        <button
+          type="button"
+          class="px-4 py-2 rounded-full font-sans text-sm font-medium transition-colors bg-moss-600 text-white"
+          data-filter-city=""
+        >
+          All Cities ({reviews.length})
+        </button>
+        {siteConfig.cities.map(city => (
+          <button
+            type="button"
+            class="px-4 py-2 rounded-full font-sans text-sm font-medium transition-colors bg-cream-100 text-bark-700 hover:bg-cream-200"
+            data-filter-city={city.slug}
+          >
+            {city.name} ({cityCounts[city.name] || 0})
+          </button>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Grid -->
+  <section class="py-12">
+    <div class="container-wide">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="reviews-grid">
+        {reviews.map((review) => (
+          <div
+            class="review-item"
+            data-city={review.data.city.toLowerCase().replace(/\s+/g, '-')}
+          >
+            <ReviewCard review={review} />
+          </div>
+        ))}
+      </div>
+
+      <!-- Empty state -->
+      <div id="no-results" class="hidden text-center py-12">
+        <p class="text-bark-600 text-lg">No reviews in this city yet. Check back soon!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- City Roundups -->
+  <section class="py-12 bg-cream-100">
+    <div class="container-wide">
+      <h2 class="text-bark-900 mb-8">Best Of Guides</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        {siteConfig.cities.map(city => (
+          <a
+            href={`/reviews/best-of-${city.slug}`}
+            class="bg-white rounded-xl p-8 shadow-cozy hover:shadow-cozy-lg transition-shadow group"
+          >
+            <h3 class="font-display text-display-md text-bark-900 group-hover:text-copper-600 transition-colors mb-2">
+              Best of {city.name}
+            </h3>
+            <p class="text-bark-600">
+              Our curated guide to the best restaurants in {city.name}, {city.state}.
+            </p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter CTA -->
+  <section class="py-12">
+    <div class="container-narrow text-center">
+      <h2 class="text-bark-900 mb-4">Get local restaurant picks</h2>
+      <p class="text-bark-600 mb-6">
+        We'll send you our latest reviews and hidden gems from Chicago and Houston.
+      </p>
+      <NewsletterForm showLeadMagnet={false} source="reviews" />
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const filterButtons = document.querySelectorAll('[data-filter-city]');
+  const grid = document.getElementById('reviews-grid');
+  const items = grid?.querySelectorAll('.review-item');
+  const noResults = document.getElementById('no-results');
+
+  filterButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const city = (btn as HTMLElement).dataset.filterCity;
+
+      // Update active state
+      filterButtons.forEach((b) => {
+        b.classList.remove('bg-moss-600', 'text-white');
+        b.classList.add('bg-cream-100', 'text-bark-700');
+      });
+      btn.classList.remove('bg-cream-100', 'text-bark-700');
+      btn.classList.add('bg-moss-600', 'text-white');
+
+      // Filter items
+      let visibleCount = 0;
+      items?.forEach((item) => {
+        const el = item as HTMLElement;
+        const itemCity = el.dataset.city;
+        const show = !city || itemCity === city;
+        el.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+      });
+
+      // Show/hide no results
+      if (noResults) {
+        noResults.classList.toggle('hidden', visibleCount > 0);
+      }
+    });
+  });
+</script>

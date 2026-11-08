@@ -1,0 +1,399 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AuthorCard from '@/components/AuthorCard.astro';
+import JumpToRecipe from '@/components/JumpToRecipe.astro';
+import ServingsScaler from '@/components/ServingsScaler.astro';
+import PrintRecipe from '@/components/PrintRecipe.astro';
+import VideoEmbed from '@/components/VideoEmbed.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import AdSlot from '@/components/AdSlot.astro';
+import { siteConfig, authors } from '@/data/site.config';
+
+export async function getStaticPaths() {
+  const recipes = await getCollection('recipes');
+  return recipes.map((recipe) => ({
+    params: { slug: recipe.slug },
+    props: { recipe },
+  }));
+}
+
+interface Props {
+  recipe: CollectionEntry<'recipes'>;
+}
+
+const { recipe } = Astro.props;
+const { data, slug } = recipe;
+const { Content } = await recipe.render();
+
+const author = authors[data.author];
+const totalTime = data.totalTime || data.prepTime + data.cookTime + (data.restTime || 0);
+
+function formatTime(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins > 0 ? `${hours} hr ${mins} min` : `${hours} hr`;
+}
+
+function formatISODuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `PT${hours > 0 ? hours + 'H' : ''}${mins > 0 ? mins + 'M' : ''}`;
+}
+
+// Group ingredients by group name
+const ingredientGroups = data.ingredients.reduce((acc, ing) => {
+  const group = ing.group || 'main';
+  if (!acc[group]) acc[group] = [];
+  acc[group].push(ing);
+  return acc;
+}, {} as Record<string, typeof data.ingredients>);
+
+// Schema.org Recipe JSON-LD
+const recipeSchema = {
+  "@context": "https://schema.org/",
+  "@type": "Recipe",
+  "name": data.title,
+  "description": data.description,
+  "image": [new URL(data.heroImage.src, siteConfig.url).href],
+  "author": {
+    "@type": "Person",
+    "name": author.name,
+    "url": `${siteConfig.url}/authors/${data.author}`
+  },
+  "datePublished": data.publishedDate.toISOString(),
+  ...(data.updatedDate && { "dateModified": data.updatedDate.toISOString() }),
+  "prepTime": formatISODuration(data.prepTime),
+  "cookTime": formatISODuration(data.cookTime),
+  "totalTime": formatISODuration(totalTime),
+  "recipeYield": `${data.servings} ${data.servingsUnit}`,
+  "recipeCategory": data.category,
+  "recipeCuisine": data.cuisine,
+  "keywords": data.keywords.join(", "),
+  "recipeIngredient": data.ingredients.map(ing =>
+    `${ing.amount || ''} ${ing.unit || ''} ${ing.item}${ing.notes ? ` (${ing.notes})` : ''}`.trim()
+  ),
+  "recipeInstructions": data.steps.map((step, i) => ({
+    "@type": "HowToStep",
+    "position": i + 1,
+    "text": step.instruction,
+    ...(step.image && { "image": step.image })
+  })),
+  ...(data.nutrition && {
+    "nutrition": {
+      "@type": "NutritionInformation",
+      ...(data.nutrition.calories && { "calories": `${data.nutrition.calories} calories` }),
+      ...(data.nutrition.fat && { "fatContent": data.nutrition.fat }),
+      ...(data.nutrition.protein && { "proteinContent": data.nutrition.protein }),
+      ...(data.nutrition.carbohydrates && { "carbohydrateContent": data.nutrition.carbohydrates }),
+      ...(data.nutrition.fiber && { "fiberContent": data.nutrition.fiber }),
+      ...(data.nutrition.sugar && { "sugarContent": data.nutrition.sugar }),
+      ...(data.nutrition.sodium && { "sodiumContent": data.nutrition.sodium }),
+    }
+  }),
+  ...(data.videoUrl && {
+    "video": {
+      "@type": "VideoObject",
+      "name": data.title,
+      "description": data.description,
+      "contentUrl": data.videoUrl,
+      "uploadDate": data.publishedDate.toISOString()
+    }
+  })
+};
+
+const canonicalUrl = `${siteConfig.url}/recipes/${slug}`;
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  image={data.heroImage.src}
+  imageAlt={data.heroImageAlt}
+  canonicalUrl={canonicalUrl}
+  type="article"
+  publishedDate={data.publishedDate}
+  updatedDate={data.updatedDate}
+  author={author.name}
+>
+  <Fragment slot="head">
+    <!-- Recipe Schema.org JSON-LD -->
+    <script type="application/ld+json" set:html={JSON.stringify(recipeSchema)} />
+
+    <!-- Pinterest -->
+    {data.pinImage && (
+      <meta property="og:image" content={new URL(data.pinImage.src, siteConfig.url).href} />
+    )}
+  </Fragment>
+
+  <article class="py-8 md:py-12" data-pagefind-body>
+    <div class="container-narrow">
+      <!-- Breadcrumb -->
+      <nav class="text-sm font-sans mb-6" aria-label="Breadcrumb">
+        <ol class="flex items-center gap-2 text-bark-500">
+          <li><a href="/" class="hover:text-moss-600">Home</a></li>
+          <li>/</li>
+          <li><a href="/recipes" class="hover:text-moss-600">Recipes</a></li>
+          <li>/</li>
+          <li class="text-bark-700">{data.title}</li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <header class="mb-8">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="badge-moss">{data.category}</span>
+          <span class="badge-copper">{data.cuisine}</span>
+          <span class:list={[
+            'badge',
+            data.difficulty === 'easy' && 'bg-green-100 text-green-700',
+            data.difficulty === 'medium' && 'bg-amber-100 text-amber-700',
+            data.difficulty === 'challenging' && 'bg-red-100 text-red-700',
+          ]}>
+            {data.difficulty}
+          </span>
+        </div>
+
+        <h1 class="text-bark-900 mb-4">{data.title}</h1>
+        <p class="text-lg text-bark-600 mb-6">{data.description}</p>
+
+        <!-- Author & Meta -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <AuthorCard authorId={data.author} />
+          <div class="flex items-center gap-4">
+            <JumpToRecipe variant="button" />
+            <PrintRecipe />
+          </div>
+        </div>
+
+        <!-- Time/Servings Info -->
+        <div class="flex flex-wrap gap-6 py-4 border-y border-cream-200">
+          <div class="text-center">
+            <span class="block font-sans text-sm text-bark-500">Prep</span>
+            <span class="font-display text-display-sm text-bark-900">{formatTime(data.prepTime)}</span>
+          </div>
+          <div class="text-center">
+            <span class="block font-sans text-sm text-bark-500">Cook</span>
+            <span class="font-display text-display-sm text-bark-900">{formatTime(data.cookTime)}</span>
+          </div>
+          {data.restTime && (
+            <div class="text-center">
+              <span class="block font-sans text-sm text-bark-500">Rest</span>
+              <span class="font-display text-display-sm text-bark-900">{formatTime(data.restTime)}</span>
+            </div>
+          )}
+          <div class="text-center">
+            <span class="block font-sans text-sm text-bark-500">Total</span>
+            <span class="font-display text-display-sm text-bark-900">{formatTime(totalTime)}</span>
+          </div>
+          <div class="text-center">
+            <span class="block font-sans text-sm text-bark-500">Servings</span>
+            <span class="font-display text-display-sm text-bark-900">{data.servings}</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Hero Image -->
+      <figure class="mb-8 -mx-4 sm:mx-0">
+        <Image
+          src={data.heroImage}
+          alt={data.heroImageAlt}
+          width={800}
+          height={600}
+          class="w-full rounded-none sm:rounded-xl"
+          loading="eager"
+        />
+      </figure>
+
+      <!-- Story/Content (before recipe) -->
+      <div class="prose prose-lg max-w-none mb-8">
+        <Content />
+      </div>
+
+      <!-- Inline Newsletter -->
+      <div class="bg-cream-100 rounded-xl p-6 mb-8 no-print">
+        <p class="font-display text-display-sm text-bark-900 mb-2">Like what you see?</p>
+        <p class="text-bark-600 mb-4">Get this recipe and more delivered to your inbox weekly.</p>
+        <NewsletterForm source="recipe-inline" />
+      </div>
+
+      <!-- Video (if present) -->
+      {data.videoUrl && data.videoType && (
+        <VideoEmbed url={data.videoUrl} type={data.videoType} title={data.title} />
+      )}
+
+      <!-- Ad Slot -->
+      <div class="my-8 no-print">
+        <AdSlot size="inline" id="recipe-mid" />
+      </div>
+
+      <!-- THE RECIPE CARD -->
+      <section id="recipe-card" class="recipe-card scroll-mt-24">
+        <header class="mb-6">
+          <h2 class="font-display text-display-lg text-bark-900 mb-2">{data.title}</h2>
+          <p class="text-bark-600">{data.description}</p>
+        </header>
+
+        <!-- Servings Scaler -->
+        <div class="mb-6 pb-6 border-b border-cream-300">
+          <ServingsScaler defaultServings={data.servings} servingsUnit={data.servingsUnit} />
+        </div>
+
+        <!-- Two-column layout on desktop -->
+        <div class="lg:grid lg:grid-cols-5 lg:gap-8">
+          <!-- Ingredients (sidebar) -->
+          <aside class="lg:col-span-2 mb-8 lg:mb-0">
+            <h3 class="font-display text-display-md text-bark-900 mb-4">Ingredients</h3>
+
+            {Object.entries(ingredientGroups).map(([group, ingredients]) => (
+              <div class="mb-6 last:mb-0">
+                {group !== 'main' && (
+                  <h4 class="font-sans font-semibold text-bark-700 mb-3">{group}</h4>
+                )}
+                <ul class="ingredient-list">
+                  {ingredients.map((ing) => (
+                    <li class="ingredient-item">
+                      {ing.amount && (
+                        <span
+                          class="ingredient-amount"
+                          data-ingredient-amount={parseFloat(ing.amount) || ing.amount}
+                        >
+                          {ing.amount}
+                        </span>
+                      )}
+                      {ing.unit && <span class="text-bark-600">{ing.unit}</span>}
+                      <span class="text-bark-800">
+                        {ing.item}
+                        {ing.notes && <span class="text-bark-500"> ({ing.notes})</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </aside>
+
+          <!-- Instructions -->
+          <div class="lg:col-span-3">
+            <h3 class="font-display text-display-md text-bark-900 mb-4">Instructions</h3>
+            <ol class="step-list">
+              {data.steps.map((step, i) => (
+                <li class="step-item">
+                  <span class="step-number">{i + 1}</span>
+                  <div class="flex-1">
+                    <p class="text-bark-800">{step.instruction}</p>
+                    {step.tip && (
+                      <p class="text-sm text-moss-700 mt-2 italic">Tip: {step.tip}</p>
+                    )}
+                    {step.image && (
+                      <img src={step.image} alt={`Step ${i + 1}`} class="mt-3 rounded-lg" loading="lazy" />
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        {data.notes && (
+          <div class="mt-8 pt-6 border-t border-cream-300">
+            <h3 class="font-display text-display-sm text-bark-900 mb-3">Notes</h3>
+            <p class="text-bark-700">{data.notes}</p>
+          </div>
+        )}
+
+        <!-- Testing Notes (unique content!) -->
+        {data.testingNotes && (
+          <div class="info-box-testing mt-6">
+            <h4 class="font-sans font-semibold text-copper-800 mb-2 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              Testing Notes
+            </h4>
+            <p class="text-bark-700">{data.testingNotes}</p>
+          </div>
+        )}
+
+        <!-- Chef's Tip -->
+        {data.chefTip && (
+          <div class="info-box-tip mt-6">
+            <h4 class="font-sans font-semibold text-moss-800 mb-2 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Chef's Tip from Xavier
+            </h4>
+            <p class="text-bark-700">{data.chefTip}</p>
+          </div>
+        )}
+
+        <!-- Nutrition (if present) -->
+        {data.nutrition && (
+          <div class="mt-8 pt-6 border-t border-cream-300">
+            <h3 class="font-display text-display-sm text-bark-900 mb-3">Nutrition (per serving)</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+              {data.nutrition.calories && (
+                <div>
+                  <span class="block text-bark-500">Calories</span>
+                  <span class="font-medium text-bark-800">{data.nutrition.calories}</span>
+                </div>
+              )}
+              {data.nutrition.protein && (
+                <div>
+                  <span class="block text-bark-500">Protein</span>
+                  <span class="font-medium text-bark-800">{data.nutrition.protein}</span>
+                </div>
+              )}
+              {data.nutrition.carbohydrates && (
+                <div>
+                  <span class="block text-bark-500">Carbs</span>
+                  <span class="font-medium text-bark-800">{data.nutrition.carbohydrates}</span>
+                </div>
+              )}
+              {data.nutrition.fat && (
+                <div>
+                  <span class="block text-bark-500">Fat</span>
+                  <span class="font-medium text-bark-800">{data.nutrition.fat}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
+
+      <!-- Print header (print only) -->
+      <div class="print-only mb-8">
+        <p class="text-sm text-bark-500">
+          Recipe from {siteConfig.name} | {canonicalUrl}
+        </p>
+      </div>
+
+      <!-- "Email me this recipe" CTA -->
+      <div class="bg-moss-50 rounded-xl p-6 mt-8 no-print">
+        <p class="font-display text-display-sm text-bark-900 mb-2">Save this recipe</p>
+        <p class="text-bark-600 mb-4">Get this recipe emailed to you (plus weekly recipes and tips).</p>
+        <NewsletterForm source="recipe-save" />
+      </div>
+
+      <!-- Author bio -->
+      <div class="mt-12 no-print">
+        <AuthorCard authorId={data.author} variant="full" />
+      </div>
+
+      <!-- Dates -->
+      <footer class="mt-8 pt-6 border-t border-cream-200 text-sm text-bark-500 font-sans">
+        <p>Published: {data.publishedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        {data.updatedDate && (
+          <p>Updated: {data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        )}
+      </footer>
+    </div>
+  </article>
+
+  <!-- Floating Jump to Recipe (mobile) -->
+  <JumpToRecipe variant="floating" />
+</BaseLayout>

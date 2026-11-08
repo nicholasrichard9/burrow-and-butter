@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets';
+import { authors } from '@/data/site.config';
+import Rating from './Rating.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  review: CollectionEntry<'reviews'>;
+}
+
+const { review } = Astro.props;
+const { data, slug } = review;
+const author = authors[data.reviewer];
+---
+
+<article class="card-elevated group">
+  <a href={`/reviews/${slug}`} class="block overflow-hidden aspect-[4/3]">
+    <Image
+      src={data.heroImage}
+      alt={data.heroImageAlt}
+      width={400}
+      height={300}
+      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+      loading="lazy"
+    />
+  </a>
+
+  <div class="p-5">
+    <!-- Location Badge -->
+    <div class="flex items-center gap-2 mb-3">
+      <span class="badge-moss">
+        {data.city}
+      </span>
+      <span class="badge-copper">
+        {data.priceRange}
+      </span>
+    </div>
+
+    <!-- Restaurant Name -->
+    <h3 class="font-display text-display-sm text-bark-900 group-hover:text-copper-600 transition-colors mb-2">
+      <a href={`/reviews/${slug}`}>
+        {data.restaurantName}
+      </a>
+    </h3>
+
+    <!-- Cuisine -->
+    <p class="text-sm text-bark-600 mb-3">
+      {data.cuisine} cuisine
+    </p>
+
+    <!-- Rating -->
+    <div class="flex items-center justify-between">
+      <Rating rating={data.rating} />
+      <span class="text-sm text-bark-500">
+        by {author.name}
+      </span>
+    </div>
+
+    <!-- Disclosure indicator if needed -->
+    {(data.comped || data.sponsored) && (
+      <p class="text-xs text-bark-400 mt-3 font-sans">
+        {data.sponsored ? 'Sponsored' : 'Includes comped items'}
+      </p>
+    )}
+  </div>
+</article>

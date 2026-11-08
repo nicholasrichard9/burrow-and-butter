@@ -1,0 +1,46 @@
+---
+import { authors, type AuthorId } from '@/data/site.config';
+
+interface Props {
+  authorId: AuthorId;
+  variant?: 'compact' | 'full';
+}
+
+const { authorId, variant = 'compact' } = Astro.props;
+const author = authors[authorId];
+---
+
+{variant === 'compact' ? (
+  <a href={`/authors/${authorId}`} class="flex items-center gap-3 group">
+    <img
+      src={author.avatar}
+      alt={author.name}
+      class="w-10 h-10 rounded-full object-cover"
+      loading="lazy"
+    />
+    <div>
+      <span class="font-sans font-medium text-bark-800 group-hover:text-copper-600 transition-colors">
+        {author.name}
+      </span>
+      <span class="block text-sm text-bark-500">{author.role}</span>
+    </div>
+  </a>
+) : (
+  <div class="bg-cream-100 rounded-xl p-6 border border-cream-200">
+    <div class="flex items-start gap-4">
+      <img
+        src={author.avatar}
+        alt={author.name}
+        class="w-16 h-16 rounded-full object-cover flex-shrink-0"
+        loading="lazy"
+      />
+      <div>
+        <a href={`/authors/${authorId}`} class="font-display text-display-sm text-bark-900 hover:text-copper-600 transition-colors">
+          {author.name}
+        </a>
+        <p class="text-sm text-bark-600 mb-2">{author.role} • {author.location}</p>
+        <p class="text-bark-700 text-sm">{author.bio}</p>
+      </div>
+    </div>
+  </div>
+)}

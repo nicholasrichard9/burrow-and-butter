@@ -1,0 +1,228 @@
+/* Import fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Shadows+Into+Light&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-cream-50 text-bark-800 font-serif antialiased;
+  }
+
+  /* Headings use display font */
+  h1, h2, h3 {
+    @apply font-display text-bark-900;
+  }
+
+  h1 {
+    @apply text-display-xl md:text-display-2xl;
+  }
+
+  h2 {
+    @apply text-display-lg md:text-display-xl;
+  }
+
+  h3 {
+    @apply text-display-md md:text-display-lg;
+  }
+
+  /* Links */
+  a {
+    @apply text-copper-600 transition-colors duration-200;
+  }
+
+  a:hover {
+    @apply text-copper-700;
+  }
+
+  /* Focus styles for accessibility */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-moss-500;
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 font-sans font-medium rounded-lg transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply btn bg-moss-600 text-white hover:bg-moss-700 active:bg-moss-800;
+  }
+
+  .btn-secondary {
+    @apply btn bg-copper-500 text-white hover:bg-copper-600 active:bg-copper-700;
+  }
+
+  .btn-outline {
+    @apply btn border-2 border-moss-600 text-moss-600 hover:bg-moss-600 hover:text-white;
+  }
+
+  .btn-ghost {
+    @apply btn text-bark-700 hover:bg-bark-100;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-xl shadow-cozy overflow-hidden;
+  }
+
+  .card-elevated {
+    @apply card hover:shadow-cozy-lg transition-shadow duration-300;
+  }
+
+  /* Container */
+  .container-narrow {
+    @apply max-w-3xl mx-auto px-4 sm:px-6;
+  }
+
+  .container-wide {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-sans font-medium;
+  }
+
+  .badge-moss {
+    @apply badge bg-moss-100 text-moss-700;
+  }
+
+  .badge-copper {
+    @apply badge bg-copper-100 text-copper-700;
+  }
+
+  /* Recipe-specific components */
+  .recipe-card {
+    @apply bg-cream-100 rounded-xl p-6 border-2 border-cream-300;
+  }
+
+  .ingredient-list {
+    @apply space-y-2;
+  }
+
+  .ingredient-item {
+    @apply flex items-baseline gap-2 py-1 border-b border-cream-200 last:border-0;
+  }
+
+  .ingredient-amount {
+    @apply font-sans font-medium text-bark-700 whitespace-nowrap;
+  }
+
+  .step-list {
+    @apply space-y-6;
+  }
+
+  .step-item {
+    @apply flex gap-4;
+  }
+
+  .step-number {
+    @apply flex-shrink-0 w-8 h-8 rounded-full bg-moss-500 text-white font-sans font-bold flex items-center justify-center;
+  }
+
+  /* Info boxes */
+  .info-box {
+    @apply p-4 rounded-lg border-l-4;
+  }
+
+  .info-box-tip {
+    @apply info-box bg-moss-50 border-moss-500;
+  }
+
+  .info-box-testing {
+    @apply info-box bg-copper-50 border-copper-500;
+  }
+
+  .info-box-warning {
+    @apply info-box bg-amber-50 border-amber-500;
+  }
+
+  /* Disclosure box for reviews */
+  .disclosure-box {
+    @apply bg-bark-100 border border-bark-300 rounded-lg p-4 text-sm font-sans;
+  }
+
+  /* Rating display */
+  .rating {
+    @apply flex items-center gap-1;
+  }
+
+  .rating-star {
+    @apply w-5 h-5 text-copper-400;
+  }
+
+  .rating-star-filled {
+    @apply rating-star text-copper-500;
+  }
+
+  /* Newsletter form */
+  .newsletter-form {
+    @apply flex flex-col sm:flex-row gap-3;
+  }
+
+  .newsletter-input {
+    @apply flex-1 px-4 py-3 rounded-lg border-2 border-cream-300 bg-white font-sans placeholder:text-bark-400 focus:border-moss-500 focus:outline-none;
+  }
+
+  /* Ad slot placeholder */
+  .ad-slot {
+    @apply bg-bark-100 border-2 border-dashed border-bark-300 rounded-lg flex items-center justify-center text-bark-400 font-sans text-sm;
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    .print-only {
+      display: block !important;
+    }
+
+    body {
+      @apply bg-white text-black;
+    }
+
+    .recipe-card {
+      @apply border border-gray-300;
+    }
+  }
+
+  .print-only {
+    display: none;
+  }
+}
+
+@layer utilities {
+  /* Hand-drawn border effect */
+  .border-hand-drawn {
+    border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  }
+
+  /* Organic shapes */
+  .shape-organic-1 {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  }
+
+  .shape-organic-2 {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-moss-600 to-copper-600;
+  }
+
+  /* Skip link for accessibility */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-moss-600 focus:text-white focus:rounded-lg;
+  }
+}

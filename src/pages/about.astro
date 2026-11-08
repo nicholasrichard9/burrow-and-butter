@@ -1,0 +1,152 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import { siteConfig, authors } from '@/data/site.config';
+---
+
+<BaseLayout
+  title="About Us"
+  description="Meet Nick and Xavier—a home cook and a professional chef who believe great food should work in any kitchen."
+>
+  <article class="py-12">
+    <!-- Hero -->
+    <section class="bg-gradient-to-b from-cream-100 to-cream-50 py-16 md:py-20">
+      <div class="container-narrow text-center">
+        <h1 class="text-bark-900 mb-6">Our Story</h1>
+        <p class="text-xl text-bark-600">
+          What happens when a self-taught home cook and a professionally trained chef
+          become friends? You get recipes that actually work.
+        </p>
+      </div>
+    </section>
+
+    <!-- The Story -->
+    <section class="py-12">
+      <div class="container-narrow prose prose-lg max-w-none">
+        <p>
+          We met through mutual friends at a dinner party where Xavier (the chef) spent
+          three hours making a sauce that Nick (the home cook) asked if he could "just
+          use jarred." The resulting debate lasted longer than the meal.
+        </p>
+
+        <p>
+          That argument became a friendship, and eventually, this site. We realized
+          that most food content falls into two camps: professional recipes that require
+          equipment and techniques nobody has at home, or "quick and easy" recipes that
+          sacrifice flavor for convenience.
+        </p>
+
+        <p>
+          We wanted something different: recipes tested from both perspectives, so you
+          can decide what's worth the extra effort and what's not.
+        </p>
+
+        <h2>What We Do</h2>
+
+        <ul>
+          <li>
+            <strong>Tested Recipes:</strong> Every recipe is made in both a professional
+            kitchen and a normal home kitchen. We note what works, what doesn't, and
+            what shortcuts are actually worth taking.
+          </li>
+          <li>
+            <strong>Chef vs. Home Cook Features:</strong> We take the same dish and
+            cook it two ways—Xavier's way with professional techniques, and Nick's way
+            with whatever's in a normal kitchen. Then we tell you when each approach
+            makes sense.
+          </li>
+          <li>
+            <strong>Restaurant Reviews:</strong> Honest takes on restaurants in Chicago
+            and Houston. We pay for our own meals (usually), and we tell you when we
+            don't.
+          </li>
+        </ul>
+
+        <h2>Our Philosophy</h2>
+
+        <p>
+          We believe cooking should be enjoyable, not stressful. Sometimes that means
+          taking shortcuts. Sometimes that means spending an afternoon perfecting a
+          technique. The key is knowing which approach serves the dish—and your life—best.
+        </p>
+
+        <p>
+          We also believe in transparency. When a meal was comped, we say so. When a
+          recipe is sponsored, we say so. Our opinions are always our own.
+        </p>
+      </div>
+    </section>
+
+    <!-- Meet the Team -->
+    <section class="py-12 bg-cream-100">
+      <div class="container-wide">
+        <h2 class="text-bark-900 text-center mb-12">Meet the Team</h2>
+
+        <div class="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+          <!-- Nick -->
+          <div class="bg-white rounded-xl p-8 shadow-cozy">
+            <img
+              src={authors.nick.avatar}
+              alt={authors.nick.name}
+              class="w-32 h-32 rounded-full mx-auto mb-6 object-cover"
+            />
+            <h3 class="font-display text-display-md text-bark-900 text-center mb-2">
+              {authors.nick.name}
+            </h3>
+            <p class="text-copper-600 text-center mb-4">{authors.nick.role}</p>
+            <p class="text-bark-600 text-center mb-4">{authors.nick.location}</p>
+            <p class="text-bark-700 mb-4">{authors.nick.bio}</p>
+            <ul class="space-y-1 mb-4">
+              {authors.nick.credentials.map((cred) => (
+                <li class="flex items-center gap-2 text-bark-600 text-sm">
+                  <span class="text-moss-500">✓</span>
+                  {cred}
+                </li>
+              ))}
+            </ul>
+            <a href="/authors/nick" class="btn-outline w-full text-center">
+              See Nick's Work
+            </a>
+          </div>
+
+          <!-- Xavier -->
+          <div class="bg-white rounded-xl p-8 shadow-cozy">
+            <img
+              src={authors.xavier.avatar}
+              alt={authors.xavier.name}
+              class="w-32 h-32 rounded-full mx-auto mb-6 object-cover"
+            />
+            <h3 class="font-display text-display-md text-bark-900 text-center mb-2">
+              {authors.xavier.name}
+            </h3>
+            <p class="text-copper-600 text-center mb-4">{authors.xavier.role}</p>
+            <p class="text-bark-600 text-center mb-4">{authors.xavier.location}</p>
+            <p class="text-bark-700 mb-4">{authors.xavier.bio}</p>
+            <ul class="space-y-1 mb-4">
+              {authors.xavier.credentials.map((cred) => (
+                <li class="flex items-center gap-2 text-bark-600 text-sm">
+                  <span class="text-moss-500">✓</span>
+                  {cred}
+                </li>
+              ))}
+            </ul>
+            <a href="/authors/xavier" class="btn-outline w-full text-center">
+              See Xavier's Work
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-12">
+      <div class="container-narrow text-center">
+        <h2 class="text-bark-900 mb-4">Join Us in the Kitchen</h2>
+        <p class="text-bark-600 mb-6">
+          Get weekly recipes, restaurant picks, and the occasional friendly debate.
+        </p>
+        <NewsletterForm showLeadMagnet={true} source="about" />
+      </div>
+    </section>
+  </article>
+</BaseLayout>

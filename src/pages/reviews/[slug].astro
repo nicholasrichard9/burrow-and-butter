@@ -1,0 +1,301 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AuthorCard from '@/components/AuthorCard.astro';
+import Rating from '@/components/Rating.astro';
+import DisclosureBox from '@/components/DisclosureBox.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import { siteConfig, authors } from '@/data/site.config';
+
+export async function getStaticPaths() {
+  const reviews = await getCollection('reviews');
+  return reviews.map((review) => ({
+    params: { slug: review.slug },
+    props: { review },
+  }));
+}
+
+interface Props {
+  review: CollectionEntry<'reviews'>;
+}
+
+const { review } = Astro.props;
+const { data, slug } = review;
+const { Content } = await review.render();
+
+const author = authors[data.reviewer];
+const canonicalUrl = `${siteConfig.url}/reviews/${slug}`;
+
+// Schema.org Review JSON-LD
+const reviewSchema = {
+  "@context": "https://schema.org/",
+  "@type": "Review",
+  "itemReviewed": {
+    "@type": "Restaurant",
+    "name": data.restaurantName,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": data.address,
+      "addressLocality": data.city,
+      "addressRegion": data.state,
+      "addressCountry": "US"
+    },
+    "servesCuisine": data.cuisine,
+    "priceRange": data.priceRange,
+    ...(data.website && { "url": data.website })
+  },
+  "reviewRating": {
+    "@type": "Rating",
+    "ratingValue": data.rating,
+    "bestRating": 5,
+    "worstRating": 1
+  },
+  "author": {
+    "@type": "Person",
+    "name": author.name
+  },
+  "datePublished": data.publishedDate.toISOString(),
+  "reviewBody": data.verdict,
+  "publisher": {
+    "@type": "Organization",
+    "name": siteConfig.name,
+    "url": siteConfig.url
+  }
+};
+
+const priceLabels: Record<string, string> = {
+  '$': 'Budget-friendly',
+  '$$': 'Moderate',
+  '$$$': 'Upscale',
+  '$$$$': 'Fine dining',
+};
+---
+
+<BaseLayout
+  title={`${data.restaurantName} Review - ${data.city}`}
+  description={data.description}
+  image={data.heroImage.src}
+  imageAlt={data.heroImageAlt}
+  canonicalUrl={canonicalUrl}
+  type="article"
+  publishedDate={data.publishedDate}
+  updatedDate={data.updatedDate}
+  author={author.name}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(reviewSchema)} />
+  </Fragment>
+
+  <article class="py-8 md:py-12" data-pagefind-body>
+    <div class="container-narrow">
+      <!-- Breadcrumb -->
+      <nav class="text-sm font-sans mb-6" aria-label="Breadcrumb">
+        <ol class="flex items-center gap-2 text-bark-500">
+          <li><a href="/" class="hover:text-moss-600">Home</a></li>
+          <li>/</li>
+          <li><a href="/reviews" class="hover:text-moss-600">Reviews</a></li>
+          <li>/</li>
+          <li><a href={`/reviews?city=${data.city.toLowerCase()}`} class="hover:text-moss-600">{data.city}</a></li>
+          <li>/</li>
+          <li class="text-bark-700 truncate">{data.restaurantName}</li>
+        </ol>
+      </nav>
+
+      <!-- Disclosure (if needed, at the top) -->
+      <DisclosureBox
+        paid={data.paid}
+        comped={data.comped}
+        sponsored={data.sponsored}
+        note={data.disclosureNote}
+      />
+
+      <!-- Header -->
+      <header class="mb-8">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="badge-moss">{data.city}</span>
+          <span class="badge-copper">{data.cuisine}</span>
+          <span class="badge bg-bark-100 text-bark-700">{data.priceRange} • {priceLabels[data.priceRange]}</span>
+        </div>
+
+        <h1 class="text-bark-900 mb-4">{data.restaurantName}</h1>
+
+        <!-- Rating -->
+        <div class="flex items-center gap-4 mb-6">
+          <Rating rating={data.rating} size="lg" />
+          <span class="text-bark-600">
+            Reviewed by {author.name}
+          </span>
+        </div>
+
+        <!-- Restaurant info -->
+        <div class="bg-cream-100 rounded-xl p-4 mb-6">
+          <div class="grid sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="font-sans font-medium text-bark-700">Address</span>
+              <p class="text-bark-600">{data.address}</p>
+            </div>
+            <div>
+              <span class="font-sans font-medium text-bark-700">Visited</span>
+              <p class="text-bark-600">
+                {data.visitDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+            </div>
+            {data.website && (
+              <div class="sm:col-span-2">
+                <span class="font-sans font-medium text-bark-700">Website</span>
+                <p>
+                  <a href={data.website} target="_blank" rel="noopener noreferrer" class="text-moss-600 hover:text-moss-700">
+                    {data.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                  </a>
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <!-- Hero Image -->
+      <figure class="mb-8 -mx-4 sm:mx-0">
+        <Image
+          src={data.heroImage}
+          alt={data.heroImageAlt}
+          width={800}
+          height={600}
+          class="w-full rounded-none sm:rounded-xl"
+          loading="eager"
+        />
+      </figure>
+
+      <!-- Review Content -->
+      <div class="prose prose-lg max-w-none mb-8">
+        <Content />
+      </div>
+
+      <!-- What We Ordered -->
+      <section class="mb-8">
+        <h2 class="font-display text-display-md text-bark-900 mb-4">What We Ordered</h2>
+        <div class="space-y-4">
+          {data.dishesOrdered.map((dish) => (
+            <div class:list={[
+              'p-4 rounded-lg border',
+              dish.recommended ? 'bg-moss-50 border-moss-200' : 'bg-cream-50 border-cream-200'
+            ]}>
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <h3 class="font-sans font-semibold text-bark-800 flex items-center gap-2">
+                    {dish.name}
+                    {dish.recommended && (
+                      <span class="badge-moss text-xs">Recommended</span>
+                    )}
+                  </h3>
+                  {dish.description && (
+                    <p class="text-bark-600 text-sm mt-1">{dish.description}</p>
+                  )}
+                </div>
+                {dish.price && (
+                  <span class="font-sans font-medium text-bark-700 whitespace-nowrap">{dish.price}</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- Pros & Cons -->
+      <section class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-moss-50 rounded-xl p-6">
+          <h3 class="font-display text-display-sm text-moss-800 mb-4 flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            The Good
+          </h3>
+          <ul class="space-y-2">
+            {data.pros.map((pro) => (
+              <li class="flex items-start gap-2 text-bark-700">
+                <span class="text-moss-500 mt-1">•</span>
+                <span>{pro}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="bg-copper-50 rounded-xl p-6">
+          <h3 class="font-display text-display-sm text-copper-800 mb-4 flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            Room for Improvement
+          </h3>
+          <ul class="space-y-2">
+            {data.cons.map((con) => (
+              <li class="flex items-start gap-2 text-bark-700">
+                <span class="text-copper-500 mt-1">•</span>
+                <span>{con}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <!-- Verdict -->
+      <section class="bg-bark-800 text-white rounded-xl p-8 mb-8">
+        <h3 class="font-display text-display-md mb-4">The Verdict</h3>
+        <p class="text-cream-100 text-lg mb-4">{data.verdict}</p>
+        <div class="flex items-center gap-4">
+          <span class="text-cream-200">Final Rating:</span>
+          <Rating rating={data.rating} size="lg" />
+        </div>
+      </section>
+
+      <!-- Photo Gallery -->
+      {data.photos && data.photos.length > 0 && (
+        <section class="mb-8">
+          <h2 class="font-display text-display-md text-bark-900 mb-4">Photos</h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {data.photos.map((photo) => (
+              <figure>
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  width={400}
+                  height={300}
+                  class="w-full rounded-lg object-cover aspect-[4/3]"
+                  loading="lazy"
+                />
+                {photo.caption && (
+                  <figcaption class="text-sm text-bark-500 mt-2">{photo.caption}</figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- Newsletter CTA -->
+      <div class="bg-cream-100 rounded-xl p-6 mb-8">
+        <p class="font-display text-display-sm text-bark-900 mb-2">
+          Want more {data.city} restaurant picks?
+        </p>
+        <p class="text-bark-600 mb-4">
+          Get our latest reviews and local finds delivered to your inbox.
+        </p>
+        <NewsletterForm source={`review-${data.city.toLowerCase()}`} />
+      </div>
+
+      <!-- Author bio -->
+      <div class="mb-8">
+        <AuthorCard authorId={data.reviewer} variant="full" />
+      </div>
+
+      <!-- Dates -->
+      <footer class="pt-6 border-t border-cream-200 text-sm text-bark-500 font-sans">
+        <p>Published: {data.publishedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        {data.updatedDate && (
+          <p>Updated: {data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        )}
+      </footer>
+    </div>
+  </article>
+</BaseLayout>

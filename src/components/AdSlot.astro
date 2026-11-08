@@ -1,0 +1,31 @@
+---
+import { siteConfig } from '@/data/site.config';
+
+interface Props {
+  size: 'banner' | 'sidebar' | 'inline';
+  id?: string;
+}
+
+const { size, id } = Astro.props;
+
+// Don't render if ads are disabled
+if (!siteConfig.features.ads) {
+  return null;
+}
+
+const sizeClasses = {
+  banner: 'h-24 md:h-28',
+  sidebar: 'h-64',
+  inline: 'h-20',
+};
+---
+
+{siteConfig.features.ads && (
+  <aside
+    class:list={['ad-slot', sizeClasses[size]]}
+    data-ad-slot={id}
+    aria-label="Advertisement"
+  >
+    <span class="text-xs">Ad placeholder</span>
+  </aside>
+)}

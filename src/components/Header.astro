@@ -1,0 +1,171 @@
+---
+import { siteConfig } from '@/data/site.config';
+
+const navLinks = [
+  { href: '/recipes', label: 'Recipes' },
+  { href: '/reviews', label: 'Reviews' },
+  { href: '/features', label: 'Chef vs. Home Cook' },
+  { href: '/about', label: 'About' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-40 bg-cream-50/95 backdrop-blur-sm border-b border-cream-200">
+  <div class="container-wide">
+    <nav class="flex items-center justify-between h-16 md:h-20" aria-label="Main navigation">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 text-bark-900 hover:text-copper-600 transition-colors">
+        <span class="font-display text-display-sm md:text-display-md">{siteConfig.name}</span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-8">
+        {navLinks.map(link => (
+          <a
+            href={link.href}
+            class:list={[
+              'font-sans font-medium text-sm transition-colors',
+              currentPath.startsWith(link.href)
+                ? 'text-moss-600'
+                : 'text-bark-700 hover:text-moss-600'
+            ]}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+
+      <!-- Desktop Actions -->
+      <div class="hidden md:flex items-center gap-4">
+        {siteConfig.features.search && (
+          <button
+            id="search-trigger"
+            type="button"
+            class="p-2 text-bark-600 hover:text-moss-600 transition-colors"
+            aria-label="Search"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        )}
+        <a href="/newsletter" class="btn-primary text-sm">
+          Subscribe
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-btn"
+        type="button"
+        class="md:hidden p-2 text-bark-700"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+      >
+        <svg class="w-6 h-6 menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg class="w-6 h-6 close-icon hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-cream-200 bg-cream-50">
+    <div class="container-wide py-4 space-y-4">
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          class:list={[
+            'block py-2 font-sans font-medium',
+            currentPath.startsWith(link.href)
+              ? 'text-moss-600'
+              : 'text-bark-700'
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+      <hr class="border-cream-200" />
+      <div class="flex items-center gap-4">
+        {siteConfig.features.search && (
+          <button
+            type="button"
+            class="p-2 text-bark-600"
+            aria-label="Search"
+            onclick="document.getElementById('search-trigger')?.click()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        )}
+        <a href="/newsletter" class="btn-primary text-sm flex-1 text-center">
+          Subscribe
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Modal -->
+  {siteConfig.features.search && (
+    <div
+      id="search-modal"
+      class="hidden fixed inset-0 z-50 bg-bark-900/50 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search"
+    >
+      <div class="container-narrow pt-20">
+        <div class="bg-white rounded-xl shadow-cozy-lg p-4">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-display text-display-sm text-bark-900">Search</h2>
+            <button
+              type="button"
+              class="p-2 text-bark-600 hover:text-bark-800"
+              aria-label="Close search"
+              onclick="document.getElementById('search-modal')?.classList.add('hidden')"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div id="pagefind-container"></div>
+        </div>
+      </div>
+    </div>
+  )}
+</header>
+
+<script>
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = menuBtn?.querySelector('.menu-icon');
+  const closeIcon = menuBtn?.querySelector('.close-icon');
+
+  menuBtn?.addEventListener('click', () => {
+    const isExpanded = menuBtn.getAttribute('aria-expanded') === 'true';
+    menuBtn.setAttribute('aria-expanded', String(!isExpanded));
+    mobileMenu?.classList.toggle('hidden');
+    menuIcon?.classList.toggle('hidden');
+    closeIcon?.classList.toggle('hidden');
+  });
+
+  // Close search modal on escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.getElementById('search-modal')?.classList.add('hidden');
+    }
+  });
+
+  // Close search modal on backdrop click
+  document.getElementById('search-modal')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      e.currentTarget.classList.add('hidden');
+    }
+  });
+</script>

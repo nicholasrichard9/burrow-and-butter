@@ -1,0 +1,110 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { siteConfig } from '@/data/site.config';
+---
+
+<BaseLayout
+  title="Disclosure"
+  description="Our policies on affiliate links, sponsored content, and comped meals."
+>
+  <article class="py-12">
+    <div class="container-narrow">
+      <h1 class="text-bark-900 mb-8">Disclosure</h1>
+
+      <div class="prose prose-lg max-w-none">
+        <p class="text-bark-500">Last updated: November 2024</p>
+
+        <p>
+          Transparency is important to us. This page explains how we make money and how
+          that might affect our content. The short version: we're always honest, even
+          when it's awkward.
+        </p>
+
+        <h2>Affiliate Links</h2>
+        <p>
+          Some links on this site are affiliate links. This means if you click and make
+          a purchase, we may earn a small commission at no extra cost to you.
+        </p>
+        <p>
+          We only recommend products we actually use and believe in. Our affiliate
+          relationships never influence our opinions—if we think something is overpriced
+          or not worth it, we'll say so, even if we could earn a commission.
+        </p>
+        <p>
+          Affiliate links help support this site and allow us to keep creating free content.
+        </p>
+
+        <h2>Sponsored Content</h2>
+        <p>
+          Sometimes brands pay us to create content featuring their products. When this
+          happens, we always:
+        </p>
+        <ul>
+          <li>Clearly label the post as sponsored</li>
+          <li>Only work with brands we genuinely like and use</li>
+          <li>Maintain full editorial control—we write our honest opinions</li>
+          <li>Disclose the relationship at the beginning of the content</li>
+        </ul>
+        <p>
+          We turn down many more sponsorships than we accept. If we wouldn't use a
+          product in our own kitchens, we won't promote it.
+        </p>
+
+        <h2>Restaurant Reviews</h2>
+        <p>
+          Most restaurant meals we review are ones we pay for ourselves. However, sometimes:
+        </p>
+        <ul>
+          <li>
+            <strong>Comped meals:</strong> A restaurant may provide a free meal for
+            review purposes. We always disclose this at the top of the review.
+          </li>
+          <li>
+            <strong>Sponsored reviews:</strong> Rarely, we accept payment to visit and
+            review a restaurant. This is always clearly disclosed, and we maintain
+            editorial independence—we never guarantee a positive review.
+          </li>
+        </ul>
+        <p>
+          Every review includes a disclosure box indicating:
+        </p>
+        <ul>
+          <li>Whether we paid for the meal</li>
+          <li>Whether any items were comped</li>
+          <li>Whether the review is sponsored</li>
+        </ul>
+        <p>
+          Our opinions are always our own. A comped meal doesn't buy a good review—just
+          an honest one.
+        </p>
+
+        <h2>Free Products</h2>
+        <p>
+          We sometimes receive free products from brands hoping for coverage. Receiving
+          a free product doesn't guarantee we'll feature it, and it certainly doesn't
+          guarantee a positive review.
+        </p>
+        <p>
+          When we do feature a product we received for free, we disclose that clearly.
+        </p>
+
+        <h2>Our Promise</h2>
+        <p>
+          We started {siteConfig.name} because we love food and cooking, not to get
+          rich from affiliate links. While these revenue streams help keep the site
+          running, they will never compromise our integrity.
+        </p>
+        <p>
+          If you ever feel we've fallen short of these standards, please{' '}
+          <a href="/contact">let us know</a>. We take your trust seriously.
+        </p>
+
+        <h2>Questions?</h2>
+        <p>
+          If you have questions about our disclosure policies, email us at{' '}
+          <a href={`mailto:${siteConfig.social.email}`}>{siteConfig.social.email}</a>.
+        </p>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

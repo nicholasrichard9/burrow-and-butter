@@ -1,0 +1,220 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RecipeCard from '@/components/RecipeCard.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig } from '@/data/site.config';
+
+const allRecipes = await getCollection('recipes', ({ data }) => !data.draft);
+
+// Sort by date (newest first)
+const recipes = allRecipes.sort(
+  (a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime()
+);
+
+// Get unique values for filters
+const categories = [...new Set(recipes.map(r => r.data.category))];
+const cuisines = [...new Set(recipes.map(r => r.data.cuisine))];
+const authors = [...new Set(recipes.map(r => r.data.author))];
+---
+
+<BaseLayout
+  title="Recipes"
+  description="Browse all tested recipes from our chef and home cook team. Find easy weeknight dinners, impressive entertaining dishes, and everything in between."
+>
+  <!-- Hero -->
+  <section class="bg-gradient-to-b from-cream-100 to-cream-50 py-12 md:py-16">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h1 class="text-bark-900 mb-4">Recipes</h1>
+        <p class="text-lg text-bark-600">
+          Every recipe is tested in both a home kitchen and a professional one.
+          Find something that works for you.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="bg-white border-b border-cream-200 sticky top-16 md:top-20 z-30">
+    <div class="container-wide py-4">
+      <div class="flex flex-wrap gap-3" id="recipe-filters">
+        <!-- Category Filter -->
+        <select
+          class="px-4 py-2 rounded-lg border border-cream-300 bg-white font-sans text-sm text-bark-700 focus:border-moss-500 focus:outline-none"
+          data-filter="category"
+        >
+          <option value="">All Categories</option>
+          {siteConfig.categories.map(cat => (
+            <option value={cat.slug}>{cat.name}</option>
+          ))}
+        </select>
+
+        <!-- Cuisine Filter -->
+        <select
+          class="px-4 py-2 rounded-lg border border-cream-300 bg-white font-sans text-sm text-bark-700 focus:border-moss-500 focus:outline-none"
+          data-filter="cuisine"
+        >
+          <option value="">All Cuisines</option>
+          {siteConfig.cuisines.map(cuisine => (
+            <option value={cuisine.slug}>{cuisine.name}</option>
+          ))}
+        </select>
+
+        <!-- Difficulty Filter -->
+        <select
+          class="px-4 py-2 rounded-lg border border-cream-300 bg-white font-sans text-sm text-bark-700 focus:border-moss-500 focus:outline-none"
+          data-filter="difficulty"
+        >
+          <option value="">Any Difficulty</option>
+          {siteConfig.difficulties.map(diff => (
+            <option value={diff.slug}>{diff.name}</option>
+          ))}
+        </select>
+
+        <!-- Author Filter -->
+        <select
+          class="px-4 py-2 rounded-lg border border-cream-300 bg-white font-sans text-sm text-bark-700 focus:border-moss-500 focus:outline-none"
+          data-filter="author"
+        >
+          <option value="">All Authors</option>
+          <option value="nick">Nick (Home Cook)</option>
+          <option value="xavier">Xavier (Chef)</option>
+        </select>
+
+        <!-- Clear Filters -->
+        <button
+          type="button"
+          class="px-4 py-2 text-sm text-moss-600 hover:text-moss-700 font-sans font-medium hidden"
+          id="clear-filters"
+        >
+          Clear filters
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recipe Grid -->
+  <section class="py-12">
+    <div class="container-wide">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="recipe-grid">
+        {recipes.map((recipe) => (
+          <div
+            class="recipe-item"
+            data-category={recipe.data.category.toLowerCase().replace(/\s+/g, '-')}
+            data-cuisine={recipe.data.cuisine.toLowerCase().replace(/\s+/g, '-')}
+            data-difficulty={recipe.data.difficulty}
+            data-author={recipe.data.author}
+          >
+            <RecipeCard recipe={recipe} />
+          </div>
+        ))}
+      </div>
+
+      <!-- Empty state -->
+      <div id="no-results" class="hidden text-center py-12">
+        <p class="text-bark-600 text-lg mb-4">No recipes match your filters.</p>
+        <button
+          type="button"
+          class="btn-outline"
+          onclick="document.getElementById('clear-filters')?.click()"
+        >
+          Clear all filters
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter CTA -->
+  <section class="py-12 bg-cream-100">
+    <div class="container-narrow text-center">
+      <h2 class="text-bark-900 mb-4">Never miss a recipe</h2>
+      <p class="text-bark-600 mb-6">
+        Get new recipes delivered weekly, plus exclusive testing notes and chef tips.
+      </p>
+      <NewsletterForm showLeadMagnet={true} source="recipes" />
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Filter functionality
+  const filters = document.querySelectorAll('[data-filter]');
+  const grid = document.getElementById('recipe-grid');
+  const items = grid?.querySelectorAll('.recipe-item');
+  const clearBtn = document.getElementById('clear-filters');
+  const noResults = document.getElementById('no-results');
+
+  function applyFilters() {
+    const activeFilters: Record<string, string> = {};
+
+    filters.forEach((filter) => {
+      const key = (filter as HTMLSelectElement).dataset.filter;
+      const value = (filter as HTMLSelectElement).value;
+      if (key && value) {
+        activeFilters[key] = value;
+      }
+    });
+
+    let visibleCount = 0;
+
+    items?.forEach((item) => {
+      const el = item as HTMLElement;
+      let show = true;
+
+      for (const [key, value] of Object.entries(activeFilters)) {
+        if (el.dataset[key] !== value) {
+          show = false;
+          break;
+        }
+      }
+
+      el.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    // Show/hide clear button
+    if (clearBtn) {
+      clearBtn.classList.toggle('hidden', Object.keys(activeFilters).length === 0);
+    }
+
+    // Show/hide no results
+    if (noResults) {
+      noResults.classList.toggle('hidden', visibleCount > 0);
+    }
+
+    // Update URL with filters
+    const url = new URL(window.location.href);
+    url.search = '';
+    for (const [key, value] of Object.entries(activeFilters)) {
+      url.searchParams.set(key, value);
+    }
+    window.history.replaceState({}, '', url);
+  }
+
+  // Initialize from URL params
+  function initFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    filters.forEach((filter) => {
+      const key = (filter as HTMLSelectElement).dataset.filter;
+      if (key && params.has(key)) {
+        (filter as HTMLSelectElement).value = params.get(key) || '';
+      }
+    });
+    applyFilters();
+  }
+
+  filters.forEach((filter) => {
+    filter.addEventListener('change', applyFilters);
+  });
+
+  clearBtn?.addEventListener('click', () => {
+    filters.forEach((filter) => {
+      (filter as HTMLSelectElement).value = '';
+    });
+    applyFilters();
+  });
+
+  // Initialize on load
+  initFromUrl();
+</script>

@@ -1,0 +1,263 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import VideoEmbed from '@/components/VideoEmbed.astro';
+import NewsletterForm from '@/components/NewsletterForm.astro';
+import { siteConfig, authors } from '@/data/site.config';
+
+export async function getStaticPaths() {
+  const features = await getCollection('features');
+  return features.map((feature) => ({
+    params: { slug: feature.slug },
+    props: { feature },
+  }));
+}
+
+interface Props {
+  feature: CollectionEntry<'features'>;
+}
+
+const { feature } = Astro.props;
+const { data, slug } = feature;
+const { Content } = await feature.render();
+
+const canonicalUrl = `${siteConfig.url}/features/${slug}`;
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  image={data.heroImage.src}
+  imageAlt={data.heroImageAlt}
+  canonicalUrl={canonicalUrl}
+  type="article"
+  publishedDate={data.publishedDate}
+  updatedDate={data.updatedDate}
+>
+  <article class="py-8 md:py-12" data-pagefind-body>
+    <div class="container-wide">
+      <!-- Breadcrumb -->
+      <nav class="text-sm font-sans mb-6" aria-label="Breadcrumb">
+        <ol class="flex items-center gap-2 text-bark-500">
+          <li><a href="/" class="hover:text-moss-600">Home</a></li>
+          <li>/</li>
+          <li><a href="/features" class="hover:text-moss-600">Chef vs. Home Cook</a></li>
+          <li>/</li>
+          <li class="text-bark-700">{data.dish}</li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <header class="max-w-4xl mx-auto text-center mb-12">
+        <span class="badge-copper mb-4">Chef vs. Home Cook</span>
+        <h1 class="text-bark-900 mb-4">{data.title}</h1>
+        <p class="text-lg text-bark-600 mb-6">{data.description}</p>
+
+        <!-- Authors -->
+        <div class="flex justify-center gap-8">
+          <div class="text-center">
+            <img
+              src={authors.xavier.avatar}
+              alt={authors.xavier.name}
+              class="w-16 h-16 rounded-full mx-auto mb-2 border-4 border-moss-200"
+            />
+            <span class="font-sans font-medium text-moss-700">Xavier</span>
+            <span class="block text-sm text-bark-500">The Chef</span>
+          </div>
+          <div class="text-center text-bark-400 self-center">
+            <span class="text-2xl font-display">vs.</span>
+          </div>
+          <div class="text-center">
+            <img
+              src={authors.nick.avatar}
+              alt={authors.nick.name}
+              class="w-16 h-16 rounded-full mx-auto mb-2 border-4 border-copper-200"
+            />
+            <span class="font-sans font-medium text-copper-700">Nick</span>
+            <span class="block text-sm text-bark-500">Home Cook</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Hero Image -->
+      <figure class="mb-12 -mx-4 sm:mx-0">
+        <Image
+          src={data.heroImage}
+          alt={data.heroImageAlt}
+          width={1200}
+          height={600}
+          class="w-full rounded-none sm:rounded-xl"
+          loading="eager"
+        />
+      </figure>
+
+      <!-- Side-by-side comparison -->
+      <section class="grid md:grid-cols-2 gap-8 mb-12">
+        <!-- Chef's Version -->
+        <div class="bg-moss-50 rounded-xl overflow-hidden">
+          <div class="aspect-[4/3]">
+            <Image
+              src={data.chefVersion.image}
+              alt={data.chefVersion.imageAlt}
+              width={600}
+              height={450}
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="p-6">
+            <h2 class="font-display text-display-md text-moss-800 mb-4">The Chef's Way</h2>
+            <p class="text-bark-700 mb-4">{data.chefVersion.approach}</p>
+
+            <div class="space-y-4">
+              <div>
+                <h3 class="font-sans font-semibold text-bark-700 mb-2">Key Techniques</h3>
+                <ul class="space-y-1">
+                  {data.chefVersion.keyTechniques.map((tech) => (
+                    <li class="flex items-center gap-2 text-bark-600 text-sm">
+                      <span class="text-moss-500">✓</span>
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span class="font-sans font-medium text-bark-700">Time Required</span>
+                  <p class="text-bark-600">{data.chefVersion.timeRequired}</p>
+                </div>
+                <div>
+                  <span class="font-sans font-medium text-bark-700">Difficulty</span>
+                  <p class="text-bark-600 capitalize">{data.chefVersion.difficultyLevel}</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="font-sans font-semibold text-bark-700 mb-2">Equipment Needed</h3>
+                <div class="flex flex-wrap gap-2">
+                  {data.chefVersion.equipmentNeeded.map((item) => (
+                    <span class="badge bg-moss-100 text-moss-700">{item}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {data.chefRecipeSlug && (
+              <a href={`/recipes/${data.chefRecipeSlug}`} class="btn-primary mt-6 w-full text-center">
+                Get Chef's Recipe
+              </a>
+            )}
+          </div>
+        </div>
+
+        <!-- Home Cook's Version -->
+        <div class="bg-copper-50 rounded-xl overflow-hidden">
+          <div class="aspect-[4/3]">
+            <Image
+              src={data.homeVersion.image}
+              alt={data.homeVersion.imageAlt}
+              width={600}
+              height={450}
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="p-6">
+            <h2 class="font-display text-display-md text-copper-800 mb-4">The Home Cook's Way</h2>
+            <p class="text-bark-700 mb-4">{data.homeVersion.approach}</p>
+
+            <div class="space-y-4">
+              <div>
+                <h3 class="font-sans font-semibold text-bark-700 mb-2">Smart Shortcuts</h3>
+                <ul class="space-y-1">
+                  {data.homeVersion.shortcuts.map((shortcut) => (
+                    <li class="flex items-center gap-2 text-bark-600 text-sm">
+                      <span class="text-copper-500">✓</span>
+                      {shortcut}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span class="font-sans font-medium text-bark-700">Time Required</span>
+                  <p class="text-bark-600">{data.homeVersion.timeRequired}</p>
+                </div>
+                <div>
+                  <span class="font-sans font-medium text-bark-700">Difficulty</span>
+                  <p class="text-bark-600 capitalize">{data.homeVersion.difficultyLevel}</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="font-sans font-semibold text-bark-700 mb-2">Equipment Needed</h3>
+                <div class="flex flex-wrap gap-2">
+                  {data.homeVersion.equipmentNeeded.map((item) => (
+                    <span class="badge bg-copper-100 text-copper-700">{item}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {data.homeRecipeSlug && (
+              <a href={`/recipes/${data.homeRecipeSlug}`} class="btn-secondary mt-6 w-full text-center">
+                Get Home Cook Recipe
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <!-- Video (if present) -->
+      {data.videoUrl && data.videoType && (
+        <div class="max-w-3xl mx-auto mb-12">
+          <VideoEmbed url={data.videoUrl} type={data.videoType} title={data.title} />
+        </div>
+      )}
+
+      <!-- Content -->
+      <div class="max-w-3xl mx-auto prose prose-lg mb-12">
+        <Content />
+      </div>
+
+      <!-- The Verdict -->
+      <section class="max-w-3xl mx-auto mb-12">
+        <div class="bg-bark-800 text-white rounded-xl p-8">
+          <h2 class="font-display text-display-lg text-white mb-4">The Verdict</h2>
+          <p class="text-cream-100 text-lg mb-6">{data.verdict}</p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-moss-800/50 rounded-lg p-4">
+              <h3 class="font-sans font-semibold text-moss-300 mb-2">Go Chef's Way When...</h3>
+              <p class="text-cream-200">{data.whenToUseChefVersion}</p>
+            </div>
+            <div class="bg-copper-800/50 rounded-lg p-4">
+              <h3 class="font-sans font-semibold text-copper-300 mb-2">Go Home Cook When...</h3>
+              <p class="text-cream-200">{data.whenToUseHomeVersion}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Newsletter CTA -->
+      <section class="max-w-3xl mx-auto bg-cream-100 rounded-xl p-8 text-center">
+        <h2 class="font-display text-display-md text-bark-900 mb-4">
+          Get both recipes in your inbox
+        </h2>
+        <p class="text-bark-600 mb-6">
+          Plus new features, tested recipes, and restaurant picks every week.
+        </p>
+        <NewsletterForm source="feature" />
+      </section>
+
+      <!-- Dates -->
+      <footer class="max-w-3xl mx-auto mt-12 pt-6 border-t border-cream-200 text-sm text-bark-500 font-sans">
+        <p>Published: {data.publishedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        {data.updatedDate && (
+          <p>Updated: {data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        )}
+      </footer>
+    </div>
+  </article>
+</BaseLayout>

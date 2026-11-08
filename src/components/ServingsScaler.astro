@@ -1,0 +1,104 @@
+---
+interface Props {
+  defaultServings: number;
+  servingsUnit?: string;
+}
+
+const { defaultServings, servingsUnit = 'servings' } = Astro.props;
+---
+
+<div class="servings-scaler flex items-center gap-3 font-sans" data-default-servings={defaultServings}>
+  <span class="text-bark-700 font-medium">Servings:</span>
+  <div class="flex items-center gap-2">
+    <button
+      type="button"
+      class="w-8 h-8 flex items-center justify-center rounded-full border-2 border-moss-500 text-moss-600 hover:bg-moss-500 hover:text-white transition-colors"
+      aria-label="Decrease servings"
+      data-servings-decrease
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+      </svg>
+    </button>
+    <span class="w-12 text-center font-bold text-bark-800 text-lg" data-servings-value>
+      {defaultServings}
+    </span>
+    <button
+      type="button"
+      class="w-8 h-8 flex items-center justify-center rounded-full border-2 border-moss-500 text-moss-600 hover:bg-moss-500 hover:text-white transition-colors"
+      aria-label="Increase servings"
+      data-servings-increase
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+    </button>
+  </div>
+  <span class="text-bark-500 text-sm">{servingsUnit}</span>
+  <button
+    type="button"
+    class="ml-2 text-sm text-moss-600 hover:text-moss-700 underline"
+    data-servings-reset
+  >
+    Reset
+  </button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const scalers = document.querySelectorAll('.servings-scaler');
+
+    scalers.forEach((scaler) => {
+      const defaultServings = parseInt((scaler as HTMLElement).dataset.defaultServings || '4', 10);
+      let currentServings = defaultServings;
+
+      const valueEl = scaler.querySelector('[data-servings-value]');
+      const decreaseBtn = scaler.querySelector('[data-servings-decrease]');
+      const increaseBtn = scaler.querySelector('[data-servings-increase]');
+      const resetBtn = scaler.querySelector('[data-servings-reset]');
+
+      function updateIngredients() {
+        const ratio = currentServings / defaultServings;
+        const ingredients = document.querySelectorAll('[data-ingredient-amount]');
+
+        ingredients.forEach((ing) => {
+          const original = parseFloat((ing as HTMLElement).dataset.ingredientAmount || '0');
+          const scaled = original * ratio;
+
+          // Format nicely (handle fractions)
+          let display: string;
+          if (scaled === Math.floor(scaled)) {
+            display = scaled.toString();
+          } else {
+            // Round to 2 decimal places, then clean up
+            display = parseFloat(scaled.toFixed(2)).toString();
+          }
+
+          ing.textContent = display;
+        });
+      }
+
+      decreaseBtn?.addEventListener('click', () => {
+        if (currentServings > 1) {
+          currentServings--;
+          if (valueEl) valueEl.textContent = currentServings.toString();
+          updateIngredients();
+        }
+      });
+
+      increaseBtn?.addEventListener('click', () => {
+        if (currentServings < 99) {
+          currentServings++;
+          if (valueEl) valueEl.textContent = currentServings.toString();
+          updateIngredients();
+        }
+      });
+
+      resetBtn?.addEventListener('click', () => {
+        currentServings = defaultServings;
+        if (valueEl) valueEl.textContent = currentServings.toString();
+        updateIngredients();
+      });
+    });
+  });
+</script>
