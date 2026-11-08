@@ -412,3 +412,4 @@ Search is built during `npm run build`. It won't work in dev mode.
 ## License
 
 MIT License - see LICENSE file for details.
+
