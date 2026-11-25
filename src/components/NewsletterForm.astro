@@ -45,10 +45,11 @@ const { newsletter } = siteConfig;
     method="post"
     class="newsletter-form"
     data-source={source}
+    target="_blank"
   >
     <input
       type="email"
-      name="email_address"
+      name="email"
       placeholder="Your email address"
       required
       aria-label="Email address"
@@ -57,7 +58,6 @@ const { newsletter } = siteConfig;
         theme === 'dark' && 'border-moss-500 bg-moss-800/50 text-white placeholder:text-moss-300'
       ]}
     />
-    <input type="hidden" name="source" value={source} />
     <button
       type="submit"
       class:list={[

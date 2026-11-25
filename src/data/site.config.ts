@@ -23,11 +23,11 @@ export const siteConfig = {
     email: 'hello@burrowbutter.com',
   },
 
-  // Newsletter (Kit/ConvertKit)
+  // Newsletter (Substack)
   newsletter: {
-    provider: 'kit', // 'kit' | 'substack' | 'buttondown'
-    formUrl: 'https://app.kit.com/forms/YOUR_FORM_ID', // Replace with your Kit form URL
-    formId: 'YOUR_FORM_ID', // Replace with your Kit form ID
+    provider: 'substack', // 'kit' | 'substack' | 'buttondown'
+    substackUrl: 'https://nickjrichard.substack.com',
+    formUrl: 'https://nickjrichard.substack.com/api/v1/free', // Substack subscribe endpoint
     leadMagnet: {
       enabled: true,
       title: 'Free: 10 Weeknight Dinners in 30 Minutes',
